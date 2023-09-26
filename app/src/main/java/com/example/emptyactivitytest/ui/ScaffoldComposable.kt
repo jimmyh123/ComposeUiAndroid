@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.emptyactivitytest.Android
 import com.example.emptyactivitytest.TestTags
+import com.example.emptyactivitytest.ui.theme.EmptyActivityTestTheme
 import kotlinx.coroutines.launch
 
 
@@ -78,41 +79,42 @@ fun TopBarComposable(contextForToast: Context) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainComposable() {
-    val contextForToast = LocalContext.current
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    EmptyActivityTestTheme {
 
-    Scaffold(
-        modifier = Modifier,
-        topBar = { TopBarComposable(contextForToast) },
-        bottomBar = { BottomBarComposable() },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        floatingActionButtonPosition = FabPosition.End,
-        floatingActionButton = {
-            var clickCount by remember { mutableStateOf(0) }
-            ExtendedFloatingActionButton(
-                modifier = Modifier.testTag(TestTags.SHOW_SNACKBAR_BUTTON),
-                onClick = {
-                    // show snackbar as a suspend function
-                    scope.launch {
-                        snackbarHostState.showSnackbar(
-                            "Snackbar # ${++clickCount}"
-                        )
+        val contextForToast = LocalContext.current
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        Scaffold(
+            modifier = Modifier,
+            topBar = { TopBarComposable(contextForToast) },
+            bottomBar = { BottomBarComposable() },
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            floatingActionButtonPosition = FabPosition.End,
+            floatingActionButton = {
+                var clickCount by remember { mutableStateOf(0) }
+                ExtendedFloatingActionButton(
+                    modifier = Modifier.testTag(TestTags.SHOW_SNACKBAR_BUTTON),
+                    onClick = {
+                        // show snackbar as a suspend function
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                "Snackbar # ${++clickCount}"
+                            )
+                        }
                     }
-                }
-            ) { Text("Show snackbar") }
-        },
-        containerColor = Color.Blue,
-        contentColor = Color.Red,
-        // contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
-    ) {
-            innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-        ){
-//            ContentComposable()
-            ContentColumnComposable(contextForToast)
+                ) { Text("Show snackbar") }
+            },
+            containerColor = Color.Blue,
+            contentColor = Color.Red,
+            // contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+            ) {
+                ContentColumnComposable(contextForToast)
+            }
         }
     }
 }
@@ -131,11 +133,7 @@ fun ContentColumnComposable(contextForToast: Context) {
                 modifier = Modifier
                     .align(Alignment.End)
                     .testTag(TestTags.NEW_NOTE_BUTTON),
-                onClick = {
-//                        title.value = ""
-//                        description.value = ""
-//                        showDialog.value = true
-                },
+                onClick = {},
             ) {
                 Icon(Icons.Default.Add, contentDescription = "+ Add New ")
                 Text(text = "New Note")

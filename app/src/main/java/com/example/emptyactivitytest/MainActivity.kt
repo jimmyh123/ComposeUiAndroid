@@ -16,9 +16,7 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
         setContent {
-            EmptyActivityTestTheme {
                 MainComposable()
-            }
         }
     }
 }
