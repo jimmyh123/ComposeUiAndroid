@@ -1,5 +1,4 @@
 val mockkVersion = "1.13.8"
-val composeVersion = "1.5.1"
 
 plugins {
     id("com.android.application")
@@ -71,12 +70,4 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-
-    // mockk
-    androidTestImplementation("io.mockk:mockk:$mockkVersion")
-    androidTestImplementation("io.mockk:mockk-android:$mockkVersion")
-
-    // Compose UI testing:
-//    androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
-//    debugImplementation("androidx.compose.ui:ui-test-manifest:$composeVersion")
 }
