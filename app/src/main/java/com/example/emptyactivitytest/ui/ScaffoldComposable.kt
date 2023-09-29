@@ -4,8 +4,10 @@ package com.example.emptyactivitytest.ui
 
 import android.content.Context
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,18 +44,26 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.emptyactivitytest.Android
+import com.example.emptyactivitytest.R
 import com.example.emptyactivitytest.TestTags
-import com.example.emptyactivitytest.ui.theme.EmptyActivityTestTheme
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarComposable(contextForToast: Context) {
+fun TopBarComposable(currentScreen: Int, contextForToast: Context) {
 
+    val screenTitle = contextForToast.getString(currentScreen)
     CenterAlignedTopAppBar(
-        title = { Text(text = "Sandbox App") },
+        title = {
+            Text(text = screenTitle)
+                },
         navigationIcon = {
             IconButton(
                 modifier = Modifier.testTag(TestTags.NAVIGATION_BAR_BUTTON),
@@ -78,49 +88,82 @@ fun TopBarComposable(contextForToast: Context) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainComposable() {
-    EmptyActivityTestTheme {
+fun EmptyActivityApp(
+    navController: NavHostController = rememberNavController()
+) {
+    val contextForToast = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-        val contextForToast = LocalContext.current
-        val snackbarHostState = remember { SnackbarHostState() }
-        val scope = rememberCoroutineScope()
+    // Get current back stack entry
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    // Get the name of the current screen
+    val currentScreen = ScreenNames.valueOf(
+            backStackEntry?.destination?.route ?: AppScreen.MainScreen.route()
+    ).title
 
-        Scaffold(
-            modifier = Modifier,
-            topBar = { TopBarComposable(contextForToast) },
-            bottomBar = { BottomBarComposable() },
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-            floatingActionButtonPosition = FabPosition.End,
-            floatingActionButton = {
-                var clickCount by remember { mutableStateOf(0) }
-                ExtendedFloatingActionButton(
-                    modifier = Modifier.testTag(TestTags.SHOW_SNACKBAR_BUTTON),
-                    onClick = {
-                        // show snackbar as a suspend function
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                "Snackbar # ${++clickCount}"
-                            )
-                        }
+
+
+    Scaffold(
+        modifier = Modifier,
+        topBar = { TopBarComposable(currentScreen, contextForToast) },
+        bottomBar = { BottomBarComposable() },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = {
+            var clickCount by remember { mutableStateOf(0) }
+            ExtendedFloatingActionButton(
+                modifier = Modifier.testTag(TestTags.SHOW_SNACKBAR_BUTTON),
+                onClick = {
+                    // show snackbar as a suspend function
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            "Snackbar # ${++clickCount}"
+                        )
                     }
-                ) { Text("Show snackbar") }
-            },
-            containerColor = Color.Blue,
-            contentColor = Color.Red,
-            // contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .padding(innerPadding)
-            ) {
-                ContentColumnComposable(contextForToast)
-            }
-        }
+                }
+            ) { Text("Show snackbar") }
+        },
+        containerColor = Color.Blue,
+        contentColor = Color.Red,
+        // contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
+    ) { innerPadding ->
+
+        MyNavHost(navController, innerPadding)
+
     }
 }
 
 @Composable
-fun ContentColumnComposable(contextForToast: Context) {
+fun MyNavHost(navController: NavHostController, innerPadding: PaddingValues) {
+
+    NavHost(
+        modifier = Modifier.padding(innerPadding),
+        navController = navController,
+        startDestination = AppScreen.MainScreen.route()) {
+        composable(AppScreen.MainScreen.route()) {
+            ContentColumnComposable(
+                onNextButtonClicked = { navController.navigate(AppScreen.ScreenTwo.route()) }
+            )
+        }
+        composable(AppScreen.ScreenTwo.route()) {
+            Screen1 { navController.navigate(AppScreen.ScreenThree.route()) }
+        }
+        composable(AppScreen.ScreenThree.route()) { Screen2() }
+    }
+}
+
+
+
+fun Screen2() {
+
+}
+
+@Composable
+fun ContentColumnComposable(onNextButtonClicked: () -> Unit) {
+
+    val contextForToast = LocalContext.current
+
     // A surface container using the 'background' color from the theme
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -133,7 +176,7 @@ fun ContentColumnComposable(contextForToast: Context) {
                 modifier = Modifier
                     .align(Alignment.End)
                     .testTag(TestTags.NEW_NOTE_BUTTON),
-                onClick = {},
+                onClick = { onNextButtonClicked() },
             ) {
                 Icon(Icons.Default.Add, contentDescription = "+ Add New ")
                 Text(text = "New Note")
@@ -179,4 +222,88 @@ fun BottomBarComposable() {
             text = "Bottom app bar",
         )
     }
+}
+
+@Composable
+fun Screen1(onNextButtonClicked: () -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Button(
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .testTag(TestTags.NEW_NOTE_BUTTON),
+                onClick = { onNextButtonClicked() },
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "+ Add New ")
+                Text(text = "New Note")
+            }
+
+            Text(
+                modifier = Modifier.testTag(TestTags.LIST_OF_NOTES_TEXT),
+                text = "List of Notes",
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                modifier = Modifier.testTag(TestTags.LIST_OF_NOTES_GOES_HERE_TEXT),
+                text = "List of Notes Goes here",
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Column (
+                verticalArrangement = Arrangement.SpaceEvenly
+            ){
+                Text("Hello")
+            }
+        }
+    }
+}
+
+class Actions(navController: NavHostController) {
+    val onNextButtonScreenOne: () -> Unit = {
+        navController.navigate(AppScreen.ScreenTwo.route())
+    }
+//    val openTask: (Int) -> Unit = { taskId ->
+//        navController.navigate("$TaskDetail/$taskId")
+//    }
+//    val addTask: () -> Unit = {
+//        navController.navigate(AddTask)
+//    }
+//    val addProject: () -> Unit = {
+//        navController.navigate(AddProject)
+//    }
+//    val navigateBack: () -> Unit = {
+//        navController.popBackStack()
+//    }
+}
+
+
+//enum class ScreenNames(@StringRes val title: Int) {
+//enum class ScreenNames(val type: String) {
+//    screen_one(AppScreen.ScreenOne.title),
+//    screen_two(AppScreen.ScreenTwo.title),
+//    screen_three(AppScreen.ScreenThree.title)
+//}
+
+enum class ScreenNames(@StringRes val title: Int) {
+    MAIN_SCREEN(AppScreen.MainScreen.resourceId),
+    SCREEN_TWO(AppScreen.ScreenTwo.resourceId),
+    SCREEN_THREE(AppScreen.ScreenThree.resourceId)
+}
+
+
+typealias ComposableFun = @Composable () -> Unit
+sealed class AppScreen(@StringRes val resourceId: Int, val route: () -> String, var screen: ComposableFun) {
+    object MainScreen : AppScreen(R.string.main_screen, { ScreenNames.MAIN_SCREEN.name },{}
+//        { ContentColumnComposable(Actions(navController = ).onNextButtonScreenOne) }
+    )
+    object ScreenTwo : AppScreen(R.string.screen_two, { ScreenNames.SCREEN_TWO.name }, { })
+    object ScreenThree : AppScreen(R.string.screen_three, { ScreenNames.SCREEN_THREE.name }, { })
 }
