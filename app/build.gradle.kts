@@ -1,4 +1,5 @@
 val mockkVersion = "1.13.8"
+val navVersion = "2.7.3"
 
 plugins {
     id("com.android.application")
@@ -14,7 +15,7 @@ android {
     defaultConfig {
         applicationId = "com.example.emptyactivitytest"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -70,4 +71,7 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    // navigation
+    implementation("androidx.navigation:navigation-compose:$navVersion")
 }
