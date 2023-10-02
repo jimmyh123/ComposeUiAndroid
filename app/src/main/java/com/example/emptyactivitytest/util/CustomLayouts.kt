@@ -1,4 +1,4 @@
-package com.example.emptyactivitytest
+package com.example.emptyactivitytest.util
 
 import androidx.annotation.FloatRange
 import androidx.compose.runtime.Composable

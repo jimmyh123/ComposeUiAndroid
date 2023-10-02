@@ -1,4 +1,4 @@
-package com.example.emptyactivitytest.ui
+package com.example.emptyactivitytest.util
 
 import androidx.compose.runtime.Composable
 import com.example.emptyactivitytest.ui.theme.EmptyActivityTestTheme

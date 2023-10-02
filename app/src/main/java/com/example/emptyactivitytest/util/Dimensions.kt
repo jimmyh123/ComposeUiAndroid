@@ -1,4 +1,4 @@
-package com.example.emptyactivitytest
+package com.example.emptyactivitytest.util
 
 import androidx.compose.ui.unit.dp
 

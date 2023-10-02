@@ -1,4 +1,4 @@
-package com.example.emptyactivitytest
+package com.example.emptyactivitytest.util
 
 object TestTags {
     const val NAVIGATION_BAR_BUTTON = "navigation_bar_button"
