@@ -23,7 +23,7 @@ sealed class BottomNavItem(
     var icon: ImageVector
 ) {
     object HomeBar : BottomNavItem(
-        R.string.navbar_homebar,
+        R.string.main_screen,
         NavRoutes.MAIN_SCREEN,
         Icons.Default.Home
     )
